@@ -114,7 +114,17 @@ export function NotificationProvider({ children }) {
       });
     });
 
-    // 3. Admin receives new worker application notification
+    // 3. Booking chat message notification when the conversation is closed
+    socketInstance.on('booking_chat_notification', (data) => {
+      addNotification({
+        title: `New message from ${data.senderName}`,
+        message: data.message,
+        type: 'info',
+        bookingId: data.bookingId,
+      });
+    });
+
+    // 4. Admin receives new worker application notification
     socketInstance.on('admin_new_worker_application', (worker) => {
       addNotification({
         title: '📝 New Worker Verification Request',
@@ -124,7 +134,7 @@ export function NotificationProvider({ children }) {
       });
     });
 
-    // 4. Worker receives verification result
+    // 5. Worker receives verification result
     socketInstance.on('worker_verification_result', (data) => {
       addNotification({
         title: data.status === 'approved' ? '🚀 Account Approved!' : 'Account Verification Notice',
