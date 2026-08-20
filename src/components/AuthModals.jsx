@@ -25,7 +25,7 @@ export const SKILL_CATEGORIES = [
   { id: 'Electrician', label: 'Electrician', icon: '⚡' },
   { id: 'Plumber', label: 'Plumber', icon: '🔧' },
   { id: 'Painter', label: 'Painter', icon: '🎨' },
-  { id: 'Carpenter', label: 'Carpenter', icon: '🪚' },
+  { id: 'Carpenter', label: 'Carpenter', icon: '🪚' }, // 
   { id: 'AC Repair', label: 'AC Repair', icon: '❄️' },
   { id: 'Home Cleaner', label: 'Home Cleaner', icon: '🧹' },
   { id: 'Mechanic', label: 'Mechanic', icon: '🚗' },
