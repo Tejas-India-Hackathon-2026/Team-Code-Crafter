@@ -57,6 +57,12 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('join_booking_room', (bookingId) => {
+    if (bookingId) {
+      socket.join(`booking_${bookingId}`);
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log(`🔌 Client disconnected: ${socket.id}`);
   });
