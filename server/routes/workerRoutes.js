@@ -67,7 +67,7 @@ router.get('/', (req, res) => {
     // Filter by max distance if user coordinates are provided
     let results = workersWithDistance;
     if (userLat && userLng && maxDistance) {
-      results = results.filter((w) => w.distanceKm === null || w.distanceKm <= Number(maxDistance));
+      results = results.filter((w) => w.distanceKm !== null && w.distanceKm <= Number(maxDistance));
     }
 
     // Sorting
