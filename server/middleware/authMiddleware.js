@@ -1,6 +1,11 @@
 import jwt from 'jsonwebtoken';
 
-export const JWT_SECRET = process.env.JWT_SECRET || 'workerconnect_super_secure_jwt_secret_2025';
+const developmentSecret = 'workerconnect_local_development_only';
+export const JWT_SECRET = process.env.JWT_SECRET || developmentSecret;
+
+if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET must be set in production.');
+}
 
 export function generateToken(user) {
   return jwt.sign(
