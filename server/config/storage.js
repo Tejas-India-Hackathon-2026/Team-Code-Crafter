@@ -15,6 +15,7 @@ let db = {
   workers: [...initialWorkers],
   bookings: [...initialBookings],
   reviews: [...initialReviews],
+  messages: [],
   emails: [
     {
       id: 'em_01',
@@ -54,6 +55,7 @@ function initStorage() {
         workers: loaded.workers || [...initialWorkers],
         bookings: loaded.bookings || [...initialBookings],
         reviews: loaded.reviews || [...initialReviews],
+        messages: loaded.messages || [],
         emails: loaded.emails || []
       };
       console.log('📦 Loaded database from JSON persistence');
@@ -170,6 +172,17 @@ export const storage = {
     return null;
   },
 
+  // Booking chat messages
+  getMessagesByBooking: (bookingId) =>
+    db.messages
+      .filter((message) => message.bookingId === bookingId)
+      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)),
+  createMessage: (message) => {
+    db.messages.push(message);
+    saveStorage();
+    return message;
+  },
+
   // Reviews
   getReviews: () => db.reviews,
   getReviewsByWorker: (workerId) => db.reviews.filter((r) => r.workerId === workerId),
@@ -211,6 +224,7 @@ export const storage = {
       workers: [...initialWorkers],
       bookings: [...initialBookings],
       reviews: [...initialReviews],
+      messages: [],
       emails: []
     };
     saveStorage();
