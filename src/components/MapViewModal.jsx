@@ -16,7 +16,7 @@ const customerIcon = L.divIcon({
   className: 'custom-customer-pin',
   html: `<div style="background-color: #00D4D4; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid #ffffff; box-shadow: 0 4px 14px rgba(0,212,212,0.6); font-size: 16px;">📍</div>`,
   iconSize: [34, 34],
-  iconAnchor: [17, 34],
+  iconAnchor: [17, 34],//
 });
 
 // Custom worker pin generator
