@@ -110,6 +110,12 @@ router.post('/register-worker', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Password must be at least 6 characters.' });
     }
 
+    const workerLat = Number(lat);
+    const workerLng = Number(lng);
+    if (!Number.isFinite(workerLat) || workerLat < -90 || workerLat > 90 || !Number.isFinite(workerLng) || workerLng < -180 || workerLng > 180) {
+      return res.status(400).json({ success: false, message: 'Please allow GPS access and select a valid service location.' });
+    }
+
     // Check existing email
     if (storage.findWorkerByEmail(email) || storage.findCustomerByEmail(email) || storage.findAdminByEmail(email)) {
       return res.status(400).json({ success: false, message: 'An account with this email address already exists.' });
@@ -127,8 +133,8 @@ router.post('/register-worker', async (req, res) => {
       subSkill: subSkill || '',
       experience: Number(experience) || 1,
       location: location || 'Bengaluru',
-      lat: lat ? Number(lat) : 12.9716 + (Math.random() - 0.5) * 0.05,
-      lng: lng ? Number(lng) : 77.5946 + (Math.random() - 0.5) * 0.05,
+      lat: workerLat,
+      lng: workerLng,
       servicePrice: Number(servicePrice),
       priceUnit: priceUnit || 'per visit',
       description: description || 'Skilled professional ready to assist with high quality service.',
