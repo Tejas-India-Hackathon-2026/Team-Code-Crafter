@@ -7,7 +7,7 @@ export default function EmailLogViewer({ onClose }) {
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState('all');
 
-  const fetchEmails = async () => {
+  const fetchEmails = async () => { //
     setLoading(true);
     try {
       const res = await fetch('/api/emails/logs');
