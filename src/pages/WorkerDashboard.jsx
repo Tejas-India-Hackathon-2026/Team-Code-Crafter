@@ -15,13 +15,14 @@ import {
   ToggleLeft,
   ToggleRight,
   TrendingUp,
-  User
+  User,
+  MessageSquare
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 
-export default function WorkerDashboard({ onNavigate }) {
+export default function WorkerDashboard({ onNavigate, onOpenChat }) {
   const { user, token, refreshUser } = useAuth();
   const { addToast } = useNotification();
 
@@ -414,6 +415,13 @@ export default function WorkerDashboard({ onNavigate }) {
                         {b.status === 'pending' && (
                           <div className="flex items-center gap-2">
                             <button
+                              onClick={() => onOpenChat(b)}
+                              className="px-4 py-2 rounded-xl border border-aqua-200 bg-aqua-50 hover:bg-aqua-100 text-aqua-900 text-xs font-bold transition flex items-center gap-1.5"
+                            >
+                              <MessageSquare className="h-3.5 w-3.5" />
+                              Chat
+                            </button>
+                            <button
                               onClick={() => setRejectingBooking(b)}
                               className="px-4 py-2 rounded-xl bg-white border border-rose-200 hover:bg-rose-50 text-rose-700 text-xs font-bold transition"
                             >
@@ -431,6 +439,13 @@ export default function WorkerDashboard({ onNavigate }) {
                         {b.status === 'accepted' && (
                           <div className="flex items-center gap-2">
                             <button
+                              onClick={() => onOpenChat(b)}
+                              className="px-4 py-2 rounded-xl border border-aqua-200 bg-aqua-50 hover:bg-aqua-100 text-aqua-900 text-xs font-bold transition flex items-center gap-1.5"
+                            >
+                              <MessageSquare className="h-3.5 w-3.5" />
+                              Chat
+                            </button>
+                            <button
                               onClick={() => handleCompleteBooking(b.id)}
                               className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md transition"
                             >
@@ -440,9 +455,18 @@ export default function WorkerDashboard({ onNavigate }) {
                         )}
 
                         {b.status === 'completed' && (
-                          <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center gap-1">
-                            <CheckCircle2 className="h-3.5 w-3.5" /> Service Delivered
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => onOpenChat(b)}
+                              className="px-4 py-2 rounded-xl border border-aqua-200 bg-aqua-50 hover:bg-aqua-100 text-aqua-900 text-xs font-bold transition flex items-center gap-1.5"
+                            >
+                              <MessageSquare className="h-3.5 w-3.5" />
+                              Chat
+                            </button>
+                            <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center gap-1">
+                              <CheckCircle2 className="h-3.5 w-3.5" /> Service Delivered
+                            </span>
+                          </div>
                         )}
 
                         {b.status === 'rejected' && (
