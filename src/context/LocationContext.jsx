@@ -25,27 +25,31 @@ export function LocationProvider({ children }) {
   const detectGPSLocation = () => {
     if (!navigator.geolocation) {
       setGpsError('Geolocation is not supported by your browser.');
-      return;
+      return Promise.reject(new Error('Geolocation is not supported by your browser.'));
     }
 
     setIsDetectingGPS(true);
     setGpsError(null);
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setCoords({ lat: latitude, lng: longitude });
-        setCurrentLocation(`Current GPS Location (${latitude.toFixed(3)}, ${longitude.toFixed(3)})`);
-        setIsDetectingGPS(false);
-      },
-      (error) => {
-        console.warn('Geolocation error:', error.message);
-        // Fallback to default indiranagar if blocked in sandboxed iframe/browser
-        setGpsError('Location access blocked. Using selected city.');
-        setIsDetectingGPS(false);
-      },
-      { timeout: 10000, enableHighAccuracy: true }
-    );
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const nextCoords = { lat: latitude, lng: longitude };
+          setCoords(nextCoords);
+          setCurrentLocation(`Current GPS Location (${latitude.toFixed(3)}, ${longitude.toFixed(3)})`);
+          setIsDetectingGPS(false);
+          resolve(nextCoords);
+        },
+        (error) => {
+          console.warn('Geolocation error:', error.message);
+          setGpsError('Location access blocked. Please allow GPS access to register your service area.');
+          setIsDetectingGPS(false);
+          reject(error);
+        },
+        { timeout: 10000, enableHighAccuracy: true }
+      );
+    });
   };
 
   const setPresetLocation = (loc) => {
