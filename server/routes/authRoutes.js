@@ -5,6 +5,7 @@ import { generateToken, authenticateToken } from '../middleware/authMiddleware.j
 import { sendEmail } from '../services/emailService.js';
 
 const router = express.Router();
+const resetRequests = new Map();
 
 // Helper to get socket IO instance if attached to app
 function getIO(req) {
@@ -280,6 +281,10 @@ router.post('/forgot-password', async (req, res) => {
     }
 
     const resetCode = 'WC-' + Math.floor(100000 + Math.random() * 900000);
+    resetRequests.set(cleanEmail, {
+      code: resetCode,
+      expiresAt: Date.now() + 15 * 60 * 1000,
+    });
 
     sendEmail({
       to: user.email,
@@ -306,8 +311,8 @@ router.post('/forgot-password', async (req, res) => {
 router.post('/reset-password', async (req, res) => {
   try {
     const { email, resetCode, newPassword } = req.body;
-    if (!email || !newPassword) {
-      return res.status(400).json({ success: false, message: 'Email and new password are required.' });
+    if (!email || !resetCode || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Email, reset code and new password are required.' });
     }
 
     if (newPassword.length < 6) {
@@ -315,17 +320,24 @@ router.post('/reset-password', async (req, res) => {
     }
 
     const cleanEmail = email.trim().toLowerCase();
+    const resetRequest = resetRequests.get(cleanEmail);
+    if (!resetRequest || resetRequest.code !== resetCode || resetRequest.expiresAt < Date.now()) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired reset code.' });
+    }
+
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     const worker = storage.findWorkerByEmail(cleanEmail);
     if (worker) {
       storage.updateWorker(worker.id, { password: hashedPassword });
+      resetRequests.delete(cleanEmail);
       return res.json({ success: true, message: 'Password has been successfully updated. Please log in.' });
     }
 
     const customer = storage.findCustomerByEmail(cleanEmail);
     if (customer) {
       storage.updateCustomer(customer.id, { password: hashedPassword });
+      resetRequests.delete(cleanEmail);
       return res.json({ success: true, message: 'Password has been successfully updated. Please log in.' });
     }
 
@@ -333,6 +345,7 @@ router.post('/reset-password', async (req, res) => {
     if (admin) {
       admin.password = hashedPassword;
       storage.save();
+      resetRequests.delete(cleanEmail);
       return res.json({ success: true, message: 'Admin password updated successfully.' });
     }
 
