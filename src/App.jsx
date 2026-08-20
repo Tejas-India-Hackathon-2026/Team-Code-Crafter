@@ -17,6 +17,7 @@ import ReviewModal from './components/ReviewModal';
 import MapViewModal from './components/MapViewModal';
 import EmailLogViewer from './components/EmailLogViewer';
 import NotificationDrawer from './components/NotificationDrawer';
+import BookingChatModal from './components/BookingChatModal';
 import {
   LoginModal,
   RegisterCustomerModal,
@@ -45,6 +46,7 @@ function MainApp() {
   const [selectedWorkerDetail, setSelectedWorkerDetail] = useState(null);
   const [bookingWorker, setBookingWorker] = useState(null);
   const [reviewingBooking, setReviewingBooking] = useState(null);
+  const [chatBooking, setChatBooking] = useState(null);
   const [mapWorkers, setMapWorkers] = useState(null);
 
   // Auto-redirect if role changes
@@ -109,11 +111,12 @@ function MainApp() {
           <CustomerDashboard
             onOpenReviewModal={(b) => setReviewingBooking(b)}
             onRebookWorker={handleRebook}
+            onOpenChat={(b) => setChatBooking(b)}
           />
         )}
 
         {activePage === 'worker-dashboard' && (
-          <WorkerDashboard onNavigate={setActivePage} />
+          <WorkerDashboard onNavigate={setActivePage} onOpenChat={(b) => setChatBooking(b)} />
         )}
 
         {activePage === 'worker-profile' && (
@@ -198,6 +201,8 @@ function MainApp() {
           }}
         />
       )}
+
+      {chatBooking && <BookingChatModal booking={chatBooking} onClose={() => setChatBooking(null)} />}
 
       {mapWorkers && (
         <MapViewModal
