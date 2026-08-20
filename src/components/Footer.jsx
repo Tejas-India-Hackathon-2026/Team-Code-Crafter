@@ -14,7 +14,7 @@ export default function Footer({ onSelectCategory, onOpenRegisterWorker }) {
             </div>
             <div>
               <h4 className="text-sm font-bold text-white">100% ID Verified</h4>
-              <p className="text-xs text-slate-400">Admin background checks</p>
+              <p className="text-xs text-slate-400">Admin background checks</p> //
             </div>
           </div>
 
