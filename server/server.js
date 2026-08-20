@@ -1,8 +1,8 @@
 import express from 'express';
+import 'dotenv/config';
 import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -13,8 +13,6 @@ import workerRoutes from './routes/workerRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import emailRoutes from './routes/emailRoutes.js';
-
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -151,6 +149,5 @@ server.listen(PORT, () => {
   console.log(`\n======================================================`);
   console.log(`⚡ WorkerConnect Backend API & Socket Server Running`);
   console.log(`📡 URL: http://localhost:${PORT}`);
-  console.log(`🔑 Admin Account: admin@workerconnect.com / admin123`);
   console.log(`======================================================\n`);
 });
