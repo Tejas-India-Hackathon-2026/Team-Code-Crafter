@@ -116,6 +116,8 @@ async function runTests() {
     skill: 'Painter',
     experience: 6,
     location: 'Indiranagar, Bengaluru',
+    lat: 12.9784,
+    lng: 77.6408,
     servicePrice: 500,
     priceUnit: 'per room',
     description: 'Expert texture & waterproof painter',
