@@ -235,7 +235,7 @@ export function LoginModal({ isOpen, onClose, onOpenRegisterCustomer, onOpenRegi
 export function RegisterCustomerModal({ isOpen, onClose, onOpenLogin }) {
   const { registerCustomer } = useAuth();
   const { addToast } = useNotification();
-  const { currentLocation } = useLocation();
+  const { currentLocation, detectGPSLocation } = useLocation();
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -244,10 +244,14 @@ export function RegisterCustomerModal({ isOpen, onClose, onOpenLogin }) {
     password: '',
     confirmPassword: '',
     location: currentLocation || 'Bengaluru',
+    lat: null,
+    lng: null,
   });
 
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLocatingCustomer, setIsLocatingCustomer] = useState(false);
+  const [customerGpsError, setCustomerGpsError] = useState('');
 
   if (!isOpen) return null;
 
@@ -262,6 +266,11 @@ export function RegisterCustomerModal({ isOpen, onClose, onOpenLogin }) {
 
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters.');
+      return;
+    }
+
+    if (!formData.lat || !formData.lng) {
+      setError('Please use GPS to select your location before creating an account.');
       return;
     }
 
@@ -280,6 +289,24 @@ export function RegisterCustomerModal({ isOpen, onClose, onOpenLogin }) {
       setError(err.message || 'Registration failed');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleUseCustomerGPS = async () => {
+    setCustomerGpsError('');
+    setIsLocatingCustomer(true);
+    try {
+      const nextCoords = await detectGPSLocation();
+      setFormData((current) => ({
+        ...current,
+        location: `Current GPS Location (${nextCoords.lat.toFixed(3)}, ${nextCoords.lng.toFixed(3)})`,
+        lat: nextCoords.lat,
+        lng: nextCoords.lng,
+      }));
+    } catch (err) {
+      setCustomerGpsError('GPS permission is required to show workers near you.');
+    } finally {
+      setIsLocatingCustomer(false);
     }
   };
 
@@ -377,6 +404,31 @@ export function RegisterCustomerModal({ isOpen, onClose, onOpenLogin }) {
             </div>
           </div>
 
+          <div>
+            <div className="mb-1 flex items-center justify-between gap-2">
+              <label className="block text-xs font-bold text-slate-700">Your Location *</label>
+              <button
+                type="button"
+                onClick={handleUseCustomerGPS}
+                disabled={isLocatingCustomer}
+                className="flex items-center gap-1 text-[11px] font-bold text-aqua-700 hover:text-aqua-900 disabled:opacity-50"
+              >
+                <Compass className={`h-3.5 w-3.5 ${isLocatingCustomer ? 'animate-spin' : ''}`} />
+                {isLocatingCustomer ? 'Locating...' : 'Use GPS'}
+              </button>
+            </div>
+            <input
+              type="text"
+              required
+              readOnly
+              value={formData.location}
+              placeholder="Use GPS to select your location"
+              className="w-full px-3 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-700 focus:ring-2 focus:ring-aqua-500 focus:outline-none"
+            />
+            <p className="mt-1 text-[10px] text-slate-400">Your location helps us find nearby verified workers.</p>
+            {customerGpsError && <p className="mt-1 text-[10px] font-semibold text-rose-600">{customerGpsError}</p>}
+          </div>
+
           <button
             type="submit"
             disabled={isSubmitting}
@@ -408,7 +460,7 @@ export function RegisterCustomerModal({ isOpen, onClose, onOpenLogin }) {
 export function RegisterWorkerModal({ isOpen, onClose, onOpenLogin }) {
   const { registerWorker } = useAuth();
   const { addToast } = useNotification();
-  const { currentLocation, coords } = useLocation();
+  const { currentLocation, coords, detectGPSLocation } = useLocation();
 
   const [formData, setFormData] = useState({
     fullName: '',
