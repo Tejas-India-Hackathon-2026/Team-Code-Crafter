@@ -17,7 +17,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 
-export default function CustomerDashboard({ onOpenReviewModal, onRebookWorker }) {
+export default function CustomerDashboard({ onOpenReviewModal, onRebookWorker, onOpenChat }) {
   const { user, token } = useAuth();
   const { addToast } = useNotification();
 
@@ -301,6 +301,16 @@ export default function CustomerDashboard({ onOpenReviewModal, onRebookWorker })
                             <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-400" />
                             Rated {b.review.rating} / 5
                           </span>
+                        )}
+
+                        {['pending', 'accepted', 'completed'].includes(b.status) && (
+                          <button
+                            onClick={() => onOpenChat(b)}
+                            className="px-3 py-1.5 rounded-xl border border-aqua-200 bg-aqua-50 hover:bg-aqua-100 text-aqua-900 text-xs font-bold transition flex items-center gap-1.5"
+                          >
+                            <MessageSquare className="h-3.5 w-3.5" />
+                            Chat
+                          </button>
                         )}
 
                         <button
