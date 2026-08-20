@@ -11,7 +11,7 @@ export default function BookingModal({ worker, onClose, onSuccess, onOpenLogin }
   const [formData, setFormData] = useState({
     customerName: user?.fullName || '',
     customerMobile: user?.mobile || '',
-    workType: '',
+    workType: '',// e.g., Short circuit troubleshooting, Tap replacement, AC jet clean...
     serviceAddress: '',
     location: worker?.location || 'Bengaluru',
     preferredDate: new Date(Date.now() + 86400000).toISOString().split('T')[0], // tomorrow
