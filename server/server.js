@@ -37,9 +37,6 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Attach io to express app so routes can broadcast events
 app.set('io', io);
 
-// Initialize persistence storage & seed state
-storage.init();
-
 // Socket.IO Room Management
 io.on('connection', (socket) => {
   console.log(`🔌 Client connected to Socket.IO: ${socket.id}`);
@@ -151,9 +148,20 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`\n======================================================`);
-  console.log(`⚡ WorkerConnect Backend API & Socket Server Running`);
-  console.log(`📡 URL: http://localhost:${PORT}`);
-  console.log(`======================================================\n`);
-});
+
+async function startServer() {
+  try {
+    await storage.init();
+    server.listen(PORT, () => {
+      console.log(`\n======================================================`);
+      console.log(`⚡ WorkerConnect Backend API & Socket Server Running`);
+      console.log(`📡 URL: http://localhost:${PORT}`);
+      console.log(`======================================================\n`);
+    });
+  } catch (err) {
+    console.error('❌ Database connection failed:', err.message);
+    process.exit(1);
+  }
+}
+
+startServer();
