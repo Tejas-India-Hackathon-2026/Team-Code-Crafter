@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   X,
   Mail,
@@ -420,8 +420,8 @@ export function RegisterWorkerModal({ isOpen, onClose, onOpenLogin }) {
     subSkill: '',
     experience: '5',
     location: currentLocation || 'Indiranagar, Bengaluru',
-    lat: coords.lat,
-    lng: coords.lng,
+    lat: null,
+    lng: null,
     servicePrice: '350',
     priceUnit: 'per visit / inspection',
     description: '',
@@ -432,6 +432,19 @@ export function RegisterWorkerModal({ isOpen, onClose, onOpenLogin }) {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registeredSuccess, setRegisteredSuccess] = useState(null);
+  const [isLocatingWorker, setIsLocatingWorker] = useState(false);
+  const [workerGpsError, setWorkerGpsError] = useState('');
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setFormData((current) => ({
+      ...current,
+      location: currentLocation || current.location,
+      lat: null,
+      lng: null,
+    }));
+    setWorkerGpsError('');
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -449,6 +462,11 @@ export function RegisterWorkerModal({ isOpen, onClose, onOpenLogin }) {
       return;
     }
 
+    if (!formData.lat || !formData.lng) {
+      setError('Please use GPS to select your service location before registering.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -463,6 +481,24 @@ export function RegisterWorkerModal({ isOpen, onClose, onOpenLogin }) {
       setError(err.message || 'Worker registration failed');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleUseWorkerGPS = async () => {
+    setWorkerGpsError('');
+    setIsLocatingWorker(true);
+    try {
+      const nextCoords = await detectGPSLocation();
+      setFormData((current) => ({
+        ...current,
+        location: `Current GPS Location (${nextCoords.lat.toFixed(3)}, ${nextCoords.lng.toFixed(3)})`,
+        lat: nextCoords.lat,
+        lng: nextCoords.lng,
+      }));
+    } catch (err) {
+      setWorkerGpsError('GPS permission is required so customers can find you in your service area.');
+    } finally {
+      setIsLocatingWorker(false);
     }
   };
 
@@ -634,15 +670,28 @@ export function RegisterWorkerModal({ isOpen, onClose, onOpenLogin }) {
             {/* Row 5: Location & Service Price */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Current Service Location *</label>
+                <div className="mb-1 flex items-center justify-between gap-2">
+                  <label className="block text-xs font-bold text-slate-700">Current Service Location *</label>
+                  <button
+                    type="button"
+                    onClick={handleUseWorkerGPS}
+                    disabled={isLocatingWorker}
+                    className="flex items-center gap-1 text-[11px] font-bold text-aqua-700 hover:text-aqua-900 disabled:opacity-50"
+                  >
+                    <Compass className={`h-3.5 w-3.5 ${isLocatingWorker ? 'animate-spin' : ''}`} />
+                    {isLocatingWorker ? 'Locating...' : 'Use GPS'}
+                  </button>
+                </div>
                 <input
                   type="text"
                   required
                   value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  readOnly
                   placeholder="e.g. Indiranagar, Bengaluru"
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:ring-2 focus:ring-aqua-500 focus:outline-none"
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-700 focus:ring-2 focus:ring-aqua-500 focus:outline-none"
                 />
+                <p className="mt-1 text-[10px] text-slate-400">Your exact GPS coordinates are used for nearby customer searches.</p>
+                {workerGpsError && <p className="mt-1 text-[10px] font-semibold text-rose-600">{workerGpsError}</p>}
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Service Price (₹) *</label>
