@@ -141,7 +141,74 @@ router.get('/worker', requireWorker, (req, res) => {
   }
 });
 
-// 4. Worker Accepts Booking Request
+// 4. Booking Chat History
+router.get('/:id/messages', authenticateToken, (req, res) => {
+  try {
+    const booking = storage.findBookingById(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found.' });
+    }
+
+    if (req.user.id !== booking.customerId && req.user.id !== booking.workerId) {
+      return res.status(403).json({ success: false, message: 'You are not part of this booking.' });
+    }
+
+    res.json({ success: true, messages: storage.getMessagesByBooking(booking.id) });
+  } catch (err) {
+    console.error('Error fetching booking messages:', err);
+    res.status(500).json({ success: false, message: 'Failed to retrieve chat messages.' });
+  }
+});
+
+// 5. Send Booking Chat Message
+router.post('/:id/messages', authenticateToken, (req, res) => {
+  try {
+    const booking = storage.findBookingById(req.params.id);
+    const text = typeof req.body.message === 'string' ? req.body.message.trim() : '';
+
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found.' });
+    }
+
+    if (req.user.id !== booking.customerId && req.user.id !== booking.workerId) {
+      return res.status(403).json({ success: false, message: 'You are not part of this booking.' });
+    }
+
+    if (!text) {
+      return res.status(400).json({ success: false, message: 'Message cannot be empty.' });
+    }
+
+    if (text.length > 2000) {
+      return res.status(400).json({ success: false, message: 'Message cannot exceed 2000 characters.' });
+    }
+
+    const message = storage.createMessage({
+      id: 'msg_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
+      bookingId: booking.id,
+      senderId: req.user.id,
+      senderRole: req.user.role,
+      senderName: req.user.fullName,
+      message: text,
+      createdAt: new Date().toISOString(),
+    });
+
+    const io = getIO(req);
+    if (io) {
+      io.to(`booking_${booking.id}`).emit('booking_chat_message', message);
+      io.to(req.user.role === 'customer' ? `worker_${booking.workerId}` : `customer_${booking.customerId}`).emit(
+        'booking_chat_notification',
+        { bookingId: booking.id, senderName: message.senderName, message: message.message }
+      );
+    }
+
+    res.status(201).json({ success: true, message });
+  } catch (err) {
+    console.error('Error sending booking message:', err);
+    res.status(500).json({ success: false, message: 'Failed to send chat message.' });
+  }
+});
+
+// 6. Worker Accepts Booking Request
 router.put('/:id/accept', requireWorker, async (req, res) => {
   try {
     const workerId = req.user.id;
