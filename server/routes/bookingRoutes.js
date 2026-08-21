@@ -57,6 +57,7 @@ router.post('/', requireCustomer, async (req, res) => {
       description: description || '',
       status: 'pending', // pending, accepted, rejected, completed, cancelled
       estimatedPrice: worker.servicePrice,
+      workerLocation: { lat: worker.lat, lng: worker.lng, updatedAt: new Date().toISOString() },
       createdAt: new Date().toISOString(),
     };
 
@@ -208,6 +209,36 @@ router.get('/worker', requireWorker, (req, res) => {
     console.error('Error fetching worker bookings:', err);
     res.status(500).json({ success: false, message: 'Failed to retrieve bookings.' });
   }
+});
+
+// Customer reads the latest worker location for an accepted booking
+router.get('/:id/location', authenticateToken, (req, res) => {
+  const booking = storage.findBookingById(req.params.id);
+  if (!booking) return res.status(404).json({ success: false, message: 'Booking not found.' });
+  if (req.user.id !== booking.customerId && req.user.id !== booking.workerId) {
+    return res.status(403).json({ success: false, message: 'You are not part of this booking.' });
+  }
+  if (booking.status !== 'accepted') {
+    return res.status(400).json({ success: false, message: 'Live tracking starts after the worker accepts the booking.' });
+  }
+  const worker = storage.findWorkerById(booking.workerId);
+  res.json({ success: true, bookingId: booking.id, workerName: booking.workerName, location: booking.workerLocation || { lat: worker?.lat, lng: worker?.lng, updatedAt: null } });
+});
+
+// Worker shares the latest GPS position for accepted bookings
+router.put('/:id/location', requireWorker, (req, res) => {
+  const booking = storage.findBookingById(req.params.id);
+  const lat = Number(req.body.lat);
+  const lng = Number(req.body.lng);
+  if (!booking || booking.workerId !== req.user.id) return res.status(404).json({ success: false, message: 'Booking not found.' });
+  if (booking.status !== 'accepted') return res.status(400).json({ success: false, message: 'Location sharing is available after booking acceptance.' });
+  if (!Number.isFinite(lat) || lat < -90 || lat > 90 || !Number.isFinite(lng) || lng < -180 || lng > 180) {
+    return res.status(400).json({ success: false, message: 'Invalid GPS coordinates.' });
+  }
+  const updated = storage.updateBooking(booking.id, { workerLocation: { lat, lng, updatedAt: new Date().toISOString() } });
+  const io = getIO(req);
+  if (io) io.to(`customer_${booking.customerId}`).emit('worker_location_updated', { bookingId: booking.id, location: updated.workerLocation });
+  res.json({ success: true, location: updated.workerLocation });
 });
 
 // 4. Booking Chat History
