@@ -1,7 +1,7 @@
 import React from 'react';
 import { ShieldCheck, Zap, Award, Clock, Heart } from 'lucide-react';
 
-export default function Footer({ onSelectCategory, onOpenRegisterWorker, onOpenAdminLogin }) {
+export default function Footer({ onSelectCategory, onOpenRegisterWorker, onOpenAdminLogin, onOpenSupport, onOpenTracking }) {
   return (
     <footer className="bg-slate-950 text-slate-300 pt-16 pb-12 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -102,10 +102,23 @@ export default function Footer({ onSelectCategory, onOpenRegisterWorker, onOpenA
             </h4>
             <ul className="space-y-2.5 text-xs text-slate-400">
               <li><span className="hover:text-white cursor-pointer">How to Book</span></li>
-              <li><span className="hover:text-white cursor-pointer">Live Worker Tracking</span></li>
+              <li>
+                <button onClick={onOpenTracking} className="hover:text-aqua-400 transition">
+                  Live Worker Tracking
+                </button>
+              </li>
               <li><span className="hover:text-white cursor-pointer">Verified Worker Standards</span></li>
               <li><span className="hover:text-white cursor-pointer">Pricing Guidelines</span></li>
-              <li><span className="hover:text-white cursor-pointer">Customer Support</span></li>
+              <li>
+                <button onClick={onOpenSupport} className="hover:text-aqua-400 transition">
+                  Customer Support
+                </button>
+              </li>
+              <li>
+                <button onClick={onOpenSupport} className="hover:text-aqua-400 transition">
+                  Raise a Complaint
+                </button>
+              </li>
             </ul>
           </div>
 
