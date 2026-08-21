@@ -29,7 +29,22 @@ export const SKILL_CATEGORIES = [
   { id: 'AC Repair', label: 'AC Repair', icon: '❄️' },
   { id: 'Home Cleaner', label: 'Home Cleaner', icon: '🧹' },
   { id: 'Mechanic', label: 'Mechanic', icon: '🚗' },
-  { id: 'Others', label: 'Others (Appliance Repair, etc.)', icon: '🛠️' },
+  { id: 'Mason', label: 'Mason / Construction Worker', icon: '🧱' },
+  { id: 'Welder', label: 'Welder / Fabricator', icon: '🔥' },
+  { id: 'Roofer', label: 'Roofer', icon: '🏠' },
+  { id: 'Tile Worker', label: 'Tile & Marble Worker', icon: '◼️' },
+  { id: 'Furniture Repair', label: 'Furniture Repair', icon: '🛋️' },
+  { id: 'Appliance Repair', label: 'Appliance Repair', icon: '🛠️' },
+  { id: 'Mobile Repair', label: 'Mobile & Electronics Repair', icon: '📱' },
+  { id: 'Computer Repair', label: 'Computer & Laptop Repair', icon: '💻' },
+  { id: 'Pest Control', label: 'Pest Control', icon: '🧴' },
+  { id: 'Gardener', label: 'Gardener / Landscaping', icon: '🌱' },
+  { id: 'Driver', label: 'Driver', icon: '🚙' },
+  { id: 'Packers Movers', label: 'Packers & Movers', icon: '📦' },
+  { id: 'Security Guard', label: 'Security Guard', icon: '🛡️' },
+  { id: 'Laundry', label: 'Laundry & Ironing', icon: '👕' },
+  { id: 'Beautician', label: 'Beautician / Salon Service', icon: '💇' },
+  { id: 'Others', label: 'Other Skilled Service', icon: '🛠️' },
 ];
 
 /* 1. Universal Login Modal */
@@ -778,6 +793,7 @@ export function RegisterWorkerModal({ isOpen, onClose, onOpenLogin }) {
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Primary Skill Category *</label>
                 <select
+                  required
                   value={formData.skill}
                   onChange={(e) => setFormData({ ...formData, skill: e.target.value })}
                   className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:ring-2 focus:ring-aqua-500 focus:outline-none font-medium"
