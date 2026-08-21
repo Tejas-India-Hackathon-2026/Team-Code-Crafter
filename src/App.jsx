@@ -10,6 +10,7 @@ import CustomerDashboard from './pages/CustomerDashboard';
 import WorkerDashboard from './pages/WorkerDashboard';
 import WorkerProfilePage from './pages/WorkerProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminLoginPage from './pages/AdminLoginPage';
 
 import WorkerDetailModal from './components/WorkerDetailModal';
 import BookingModal from './components/BookingModal';
@@ -20,7 +21,6 @@ import NotificationDrawer from './components/NotificationDrawer';
 import BookingChatModal from './components/BookingChatModal';
 import {
   LoginModal,
-  AdminLoginModal,
   RegisterCustomerModal,
   RegisterWorkerModal,
   ForgotPasswordModal,
@@ -37,7 +37,6 @@ function MainApp() {
 
   // Modal States
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
   const [isRegisterCustomerOpen, setIsRegisterCustomerOpen] = useState(false);
   const [isRegisterWorkerOpen, setIsRegisterWorkerOpen] = useState(false);
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
@@ -87,7 +86,6 @@ function MainApp() {
         onOpenLogin={() => setIsLoginOpen(true)}
         onOpenRegisterCustomer={() => setIsRegisterCustomerOpen(true)}
         onOpenRegisterWorker={() => setIsRegisterWorkerOpen(true)}
-        onOpenAdminLogin={() => setIsAdminLoginOpen(true)}
         onOpenEmailLogs={() => setIsEmailLogsOpen(true)}
         onOpenNotifications={() => setIsNotificationsOpen(true)}
         onOpenDemoSwitcher={() => setIsDemoSwitcherOpen(true)}
@@ -129,6 +127,12 @@ function MainApp() {
         {activePage === 'admin' && (
           <AdminDashboard onOpenEmailLogs={() => setIsEmailLogsOpen(true)} />
         )}
+
+        {activePage === 'admin-login' && (
+          <AdminLoginPage
+            onNavigate={setActivePage}
+          />
+        )}
       </main>
 
       {/* Footer */}
@@ -139,6 +143,7 @@ function MainApp() {
           window.scrollTo({ top: 450, behavior: 'smooth' });
         }}
         onOpenRegisterWorker={() => setIsRegisterWorkerOpen(true)}
+        onOpenAdminLogin={() => setActivePage('admin-login')}
       />
 
       {/* Modals & Dialogs */}
@@ -148,11 +153,6 @@ function MainApp() {
         onOpenRegisterCustomer={() => setIsRegisterCustomerOpen(true)}
         onOpenRegisterWorker={() => setIsRegisterWorkerOpen(true)}
         onOpenForgotPassword={() => setIsForgotPasswordOpen(true)}
-      />
-
-      <AdminLoginModal
-        isOpen={isAdminLoginOpen}
-        onClose={() => setIsAdminLoginOpen(false)}
       />
 
       <RegisterCustomerModal
