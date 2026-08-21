@@ -1,7 +1,7 @@
 import React from 'react';
 import { ShieldCheck, Zap, Award, Clock, Heart } from 'lucide-react';
 
-export default function Footer({ onSelectCategory, onOpenRegisterWorker }) {
+export default function Footer({ onSelectCategory, onOpenRegisterWorker, onOpenAdminLogin }) {
   return (
     <footer className="bg-slate-950 text-slate-300 pt-16 pb-12 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -116,7 +116,14 @@ export default function Footer({ onSelectCategory, onOpenRegisterWorker }) {
             </h4>
             <ul className="space-y-2.5 text-xs text-slate-400">
               <li><span className="hover:text-white cursor-pointer">Worker Verification Process</span></li>
-              <li><span className="hover:text-white cursor-pointer">Admin Verification Desk</span></li>
+              <li>
+                <button
+                  onClick={onOpenAdminLogin}
+                  className="hover:text-aqua-400 transition"
+                >
+                  Admin Login
+                </button>
+              </li>
               <li><span className="hover:text-white cursor-pointer">Zero Commission Model</span></li>
               <li><span className="hover:text-white cursor-pointer">Terms & Privacy Policy</span></li>
               <li><span className="hover:text-white cursor-pointer">Safety Guidelines</span></li>
