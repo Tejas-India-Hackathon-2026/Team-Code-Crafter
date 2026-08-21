@@ -17,6 +17,7 @@ let db = {
   reviews: [...initialReviews],
   messages: [],
   inquiries: [],
+  complaints: [],
   emails: [
     {
       id: 'em_01',
@@ -38,7 +39,9 @@ let db = {
       sentAt: '2025-02-20T08:30:05Z',
       status: 'delivered'
     }
-  ]
+  ],
+  inquiries: [],
+  complaints: [],
 };
 
 // Initialize persistent storage
@@ -58,6 +61,7 @@ function initStorage() {
         reviews: loaded.reviews || [...initialReviews],
         messages: loaded.messages || [],
         inquiries: loaded.inquiries || [],
+        complaints: loaded.complaints || [],
         emails: loaded.emails || []
       };
       console.log('📦 Loaded database from JSON persistence');
@@ -196,6 +200,14 @@ export const storage = {
     return message;
   },
 
+  // Customer and worker support complaints
+  getComplaints: () => db.complaints,
+  createComplaint: (complaint) => {
+    db.complaints.unshift(complaint);
+    saveStorage();
+    return complaint;
+  },
+
   // Reviews
   getReviews: () => db.reviews,
   getReviewsByWorker: (workerId) => db.reviews.filter((r) => r.workerId === workerId),
@@ -238,6 +250,8 @@ export const storage = {
       bookings: [...initialBookings],
       reviews: [...initialReviews],
       messages: [],
+      inquiries: [],
+      complaints: [],
       emails: []
     };
     saveStorage();
