@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const LocationContext = createContext();
 
 export const POPULAR_LOCATIONS = [
+  { name: 'Patna, Bihar', lat: 25.5941, lng: 85.1376, pin: '800001' },
   { name: 'Indiranagar, Bengaluru', lat: 12.9784, lng: 77.6408, pin: '560038' },
   { name: 'Koramangala, Bengaluru', lat: 12.9352, lng: 77.6245, pin: '560034' },
   { name: 'HSR Layout, Bengaluru', lat: 12.9121, lng: 77.6446, pin: '560102' },
@@ -14,9 +15,9 @@ export const POPULAR_LOCATIONS = [
 ];
 
 export function LocationProvider({ children }) {
-  const [currentLocation, setCurrentLocation] = useState('Indiranagar, Bengaluru');
-  const [coords, setCoords] = useState({ lat: 12.9784, lng: 77.6408 });
-  const [pinCode, setPinCode] = useState('560038');
+  const [currentLocation, setCurrentLocation] = useState('Patna, Bihar');
+  const [coords, setCoords] = useState({ lat: 25.5941, lng: 85.1376 });
+  const [pinCode, setPinCode] = useState('800001');
   const [isDetectingGPS, setIsDetectingGPS] = useState(false);
   const [gpsError, setGpsError] = useState(null);
   const [maxDistance, setMaxDistance] = useState(25); // in km
