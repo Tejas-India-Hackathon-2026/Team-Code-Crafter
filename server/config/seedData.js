@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 // Pre-hashed passwords for faster bootstrapping (or hashed on load)
 const passwordHash = bcrypt.hashSync('worker123', 10);
 const customerPasswordHash = bcrypt.hashSync('customer123', 10);
-const adminPasswordHash = bcrypt.hashSync('admin123', 10);
+const adminPasswordHash = bcrypt.hashSync('skillconect12@', 10);
 
 export const initialAdmin = {
   id: 'admin_01',
