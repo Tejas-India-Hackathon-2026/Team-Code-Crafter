@@ -117,6 +117,75 @@ router.post('/', requireCustomer, async (req, res) => {
   }
 });
 
+// Start a customer-worker conversation before creating a booking
+router.post('/inquiries', requireCustomer, (req, res) => {
+  const customer = storage.findCustomerById(req.user.id);
+  const worker = storage.findWorkerById(req.body.workerId);
+
+  if (!worker || worker.status !== 'approved') {
+    return res.status(404).json({ success: false, message: 'Worker is not available for chat.' });
+  }
+
+  let inquiry = storage.findInquiryBetween(customer.id, worker.id);
+  if (!inquiry) {
+    inquiry = storage.createInquiry({
+      id: 'inq_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 5),
+      customerId: customer.id,
+      customerName: customer.fullName,
+      workerId: worker.id,
+      workerName: worker.fullName,
+      workerSkill: worker.skill,
+      workerAvatar: worker.avatar,
+      workType: `${worker.skill} inquiry`,
+      createdAt: new Date().toISOString(),
+    });
+  }
+
+  res.status(201).json({ success: true, inquiry });
+});
+
+router.get('/inquiries/worker', requireWorker, (req, res) => {
+  res.json({ success: true, inquiries: storage.findInquiriesByWorker(req.user.id) });
+});
+
+router.get('/inquiries/:id/messages', authenticateToken, (req, res) => {
+  const inquiry = storage.findInquiryById(req.params.id);
+  if (!inquiry) return res.status(404).json({ success: false, message: 'Conversation not found.' });
+  if (req.user.id !== inquiry.customerId && req.user.id !== inquiry.workerId) {
+    return res.status(403).json({ success: false, message: 'You are not part of this conversation.' });
+  }
+  res.json({ success: true, messages: storage.getMessagesByBooking(inquiry.id) });
+});
+
+router.post('/inquiries/:id/messages', authenticateToken, (req, res) => {
+  const inquiry = storage.findInquiryById(req.params.id);
+  const text = typeof req.body.message === 'string' ? req.body.message.trim() : '';
+  if (!inquiry) return res.status(404).json({ success: false, message: 'Conversation not found.' });
+  if (req.user.id !== inquiry.customerId && req.user.id !== inquiry.workerId) {
+    return res.status(403).json({ success: false, message: 'You are not part of this conversation.' });
+  }
+  if (!text) return res.status(400).json({ success: false, message: 'Message cannot be empty.' });
+  if (text.length > 2000) return res.status(400).json({ success: false, message: 'Message cannot exceed 2000 characters.' });
+
+  const message = storage.createMessage({
+    id: 'msg_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
+    inquiryId: inquiry.id,
+    senderId: req.user.id,
+    senderRole: req.user.role,
+    senderName: req.user.fullName,
+    message: text,
+    createdAt: new Date().toISOString(),
+  });
+  const io = getIO(req);
+  if (io) {
+    io.to(`inquiry_${inquiry.id}`).emit('booking_chat_message', message);
+    io.to(req.user.role === 'customer' ? `worker_${inquiry.workerId}` : `customer_${inquiry.customerId}`).emit(
+      'booking_chat_notification', { bookingId: inquiry.id, senderName: message.senderName, message: message.message }
+    );
+  }
+  res.status(201).json({ success: true, message });
+});
+
 // 2. Customer Bookings List
 router.get('/customer', requireCustomer, (req, res) => {
   try {
