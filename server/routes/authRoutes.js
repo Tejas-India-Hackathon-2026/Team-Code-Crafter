@@ -15,7 +15,7 @@ function getIO(req) {
 // 1. Customer Sign Up
 router.post('/register-customer', async (req, res) => {
   try {
-    const { fullName, mobile, email, password, confirmPassword, location } = req.body;
+    const { fullName, mobile, email, password, confirmPassword, location, lat, lng } = req.body;
 
     if (!fullName || !mobile || !email || !password) {
       return res.status(400).json({ success: false, message: 'All required fields must be filled.' });
@@ -27,6 +27,12 @@ router.post('/register-customer', async (req, res) => {
 
     if (password.length < 6) {
       return res.status(400).json({ success: false, message: 'Password must be at least 6 characters long.' });
+    }
+
+    const customerLat = Number(lat);
+    const customerLng = Number(lng);
+    if (!Number.isFinite(customerLat) || customerLat < -90 || customerLat > 90 || !Number.isFinite(customerLng) || customerLng < -180 || customerLng > 180) {
+      return res.status(400).json({ success: false, message: 'Please allow GPS access and select a valid location.' });
     }
 
     // Check existing email across customer, worker, admin
@@ -42,9 +48,9 @@ router.post('/register-customer', async (req, res) => {
       email: email.trim().toLowerCase(),
       password: hashedPassword,
       role: 'customer',
-      location: location || 'Indiranagar, Bengaluru',
-      lat: 12.9784,
-      lng: 77.6408,
+      location: location || `GPS Location (${customerLat.toFixed(3)}, ${customerLng.toFixed(3)})`,
+      lat: customerLat,
+      lng: customerLng,
       avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(fullName)}`,
       createdAt: new Date().toISOString(),
     };
