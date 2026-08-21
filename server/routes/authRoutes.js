@@ -268,7 +268,37 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// 4. Forgot Password Simulation
+// 4. Admin Login with the pre-registered admin email
+router.post('/admin-login', async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ success: false, message: 'Admin password is required.' });
+    }
+
+    const admin = storage.getAdmin();
+    const match = admin && (await bcrypt.compare(password, admin.password));
+
+    if (!match) {
+      return res.status(401).json({ success: false, message: 'Invalid admin password.' });
+    }
+
+    const token = generateToken(admin);
+    const { password: _, ...safeAdmin } = admin;
+    return res.json({
+      success: true,
+      message: 'Admin authenticated successfully',
+      token,
+      user: safeAdmin,
+    });
+  } catch (err) {
+    console.error('Admin login error:', err);
+    res.status(500).json({ success: false, message: 'Server error during admin login.' });
+  }
+});
+
+// 5. Forgot Password Simulation
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
