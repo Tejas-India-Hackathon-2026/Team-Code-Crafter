@@ -19,6 +19,8 @@ import MapViewModal from './components/MapViewModal';
 import EmailLogViewer from './components/EmailLogViewer';
 import NotificationDrawer from './components/NotificationDrawer';
 import BookingChatModal from './components/BookingChatModal';
+import SupportComplaintModal from './components/SupportComplaintModal';
+import LiveTrackingModal from './components/LiveTrackingModal';
 import {
   LoginModal,
   RegisterCustomerModal,
@@ -43,6 +45,8 @@ function MainApp() {
   const [isDemoSwitcherOpen, setIsDemoSwitcherOpen] = useState(false);
   const [isEmailLogsOpen, setIsEmailLogsOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isSupportOpen, setIsSupportOpen] = useState(false);
+  const [isTrackingOpen, setIsTrackingOpen] = useState(false);
 
   const [selectedWorkerDetail, setSelectedWorkerDetail] = useState(null);
   const [bookingWorker, setBookingWorker] = useState(null);
@@ -144,6 +148,8 @@ function MainApp() {
         }}
         onOpenRegisterWorker={() => setIsRegisterWorkerOpen(true)}
         onOpenAdminLogin={() => setActivePage('admin-login')}
+        onOpenSupport={() => setIsSupportOpen(true)}
+        onOpenTracking={() => setIsTrackingOpen(true)}
       />
 
       {/* Modals & Dialogs */}
@@ -170,6 +176,18 @@ function MainApp() {
       <ForgotPasswordModal
         isOpen={isForgotPasswordOpen}
         onClose={() => setIsForgotPasswordOpen(false)}
+        onOpenLogin={() => setIsLoginOpen(true)}
+      />
+
+      <SupportComplaintModal
+        isOpen={isSupportOpen}
+        onClose={() => setIsSupportOpen(false)}
+        onOpenLogin={() => setIsLoginOpen(true)}
+      />
+
+      <LiveTrackingModal
+        isOpen={isTrackingOpen}
+        onClose={() => setIsTrackingOpen(false)}
         onOpenLogin={() => setIsLoginOpen(true)}
       />
 
