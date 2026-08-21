@@ -11,13 +11,16 @@ export default function BookingChatModal({ booking, onClose }) {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef(null);
+  const isInquiry = Boolean(booking.inquiryId || booking.id?.startsWith('inq_'));
+  const conversationId = booking.inquiryId || booking.id;
+  const conversationPath = isInquiry ? 'inquiries' : '';
 
   useEffect(() => {
     let active = true;
 
     async function loadMessages() {
       try {
-        const res = await fetch(`/api/bookings/${booking.id}/messages`, {
+        const res = await fetch(`/api/bookings/${conversationPath ? `${conversationPath}/` : ''}${conversationId}/messages`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -33,20 +36,20 @@ export default function BookingChatModal({ booking, onClose }) {
     return () => {
       active = false;
     };
-  }, [booking.id, token, addToast]);
+  }, [conversationId, conversationPath, token, addToast]);
 
   useEffect(() => {
     if (!socket) return undefined;
 
-    socket.emit('join_booking_room', booking.id);
+    socket.emit(isInquiry ? 'join_inquiry_room' : 'join_booking_room', conversationId);
     const handleMessage = (message) => {
-      if (message.bookingId !== booking.id) return;
+      if (message.bookingId !== conversationId && message.inquiryId !== conversationId) return;
       setMessages((current) => (current.some((item) => item.id === message.id) ? current : [...current, message]));
     };
 
     socket.on('booking_chat_message', handleMessage);
     return () => socket.off('booking_chat_message', handleMessage);
-  }, [socket, booking.id]);
+  }, [socket, conversationId, isInquiry]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -59,7 +62,7 @@ export default function BookingChatModal({ booking, onClose }) {
 
     setSending(true);
     try {
-      const res = await fetch(`/api/bookings/${booking.id}/messages`, {
+      const res = await fetch(`/api/bookings/${conversationPath ? `${conversationPath}/` : ''}${conversationId}/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -90,7 +93,7 @@ export default function BookingChatModal({ booking, onClose }) {
             </div>
             <div className="min-w-0">
               <h2 className="truncate text-sm font-black">Chat with {otherName}</h2>
-              <p className="truncate text-[11px] text-slate-400">{booking.workType} · Booking #{booking.id}</p>
+              <p className="truncate text-[11px] text-slate-400">{booking.workType} · {isInquiry ? 'Pre-booking chat' : `Booking #${booking.id}`}</p>
             </div>
           </div>
           <button onClick={onClose} className="rounded-xl p-2 text-slate-300 transition hover:bg-white/10 hover:text-white" aria-label="Close chat">
