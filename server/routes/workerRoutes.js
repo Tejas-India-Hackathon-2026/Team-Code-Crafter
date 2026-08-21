@@ -57,7 +57,14 @@ router.get('/', (req, res) => {
       if (userLat && userLng && w.lat && w.lng) {
         dist = calculateDistance(userLat, userLng, w.lat, w.lng);
       }
-      const { password, idProofNumber, ...workerSafe } = w;
+      const {
+        password,
+        idProofNumber,
+        governmentIdDocument,
+        skillCertificateDocument,
+        skillCertificateNumber,
+        ...workerSafe
+      } = w;
       return {
         ...workerSafe,
         distanceKm: dist,
@@ -214,7 +221,15 @@ router.get('/:id', (req, res) => {
     }
 
     const reviews = storage.getReviewsByWorker(worker.id);
-    const { password, idProofNumber, documentUrl, ...workerSafe } = worker;
+    const {
+      password,
+      idProofNumber,
+      documentUrl,
+      governmentIdDocument,
+      skillCertificateDocument,
+      skillCertificateNumber,
+      ...workerSafe
+    } = worker;
 
     res.json({ success: true, worker: workerSafe, reviews });
   } catch (err) {
