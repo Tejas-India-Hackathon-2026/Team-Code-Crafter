@@ -576,7 +576,10 @@ export function RegisterWorkerModal({ isOpen, onClose, onOpenLogin }) {
     servicePrice: '350',
     priceUnit: 'per visit / inspection',
     description: '',
-    idProofNumber: 'ID-GOV-' + Math.floor(10000 + Math.random() * 90000),
+    idProofNumber: '',
+    skillCertificateNumber: '',
+    governmentIdDocument: '',
+    skillCertificateDocument: '',
     avatar: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=400&auto=format&fit=crop&q=80',
   });
 
@@ -618,6 +621,21 @@ export function RegisterWorkerModal({ isOpen, onClose, onOpenLogin }) {
       return;
     }
 
+    if (!formData.idProofNumber.trim()) {
+      setError('Please enter your Aadhaar, PAN, or other government ID number.');
+      return;
+    }
+
+    if (!formData.governmentIdDocument || !formData.skillCertificateDocument) {
+      setError('Please upload both your government ID PDF and skill certificate PDF.');
+      return;
+    }
+
+    if (!formData.skillCertificateNumber.trim()) {
+      setError(`Please enter your ${formData.skill} certificate or skill ID number.`);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -633,6 +651,31 @@ export function RegisterWorkerModal({ isOpen, onClose, onOpenLogin }) {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handlePdfUpload = (event, field) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      setError('Only PDF files are accepted for verification documents.');
+      event.target.value = '';
+      return;
+    }
+
+    if (file.size > 100 * 1024) {
+      setError('Each verification PDF must be 100KB or smaller.');
+      event.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setFormData((current) => ({ ...current, [field]: reader.result }));
+      setError('');
+    };
+    reader.onerror = () => setError('Could not read the selected PDF.');
+    reader.readAsDataURL(file);
   };
 
   const handleUseWorkerGPS = async () => {
@@ -869,6 +912,55 @@ export function RegisterWorkerModal({ isOpen, onClose, onOpenLogin }) {
                 placeholder="Highlight your trade skills, specialization, tools you carry, response times..."
                 className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:ring-2 focus:ring-aqua-500 focus:outline-none"
               />
+            </div>
+
+            {/* Verification Documents */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Government ID Number *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.idProofNumber}
+                  onChange={(e) => setFormData({ ...formData, idProofNumber: e.target.value })}
+                  placeholder="Aadhaar / PAN / Voter ID number"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 focus:ring-2 focus:ring-aqua-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Government ID PDF * (max 100KB)</label>
+                <input
+                  type="file"
+                  required
+                  accept="application/pdf,.pdf"
+                  onChange={(e) => handlePdfUpload(e, 'governmentIdDocument')}
+                  className="w-full rounded-xl bg-white border border-slate-200 px-2 py-2 text-[11px] text-slate-700 file:mr-2 file:rounded-lg file:border-0 file:bg-aqua-100 file:px-2 file:py-1 file:text-[11px] file:font-bold file:text-aqua-900"
+                />
+                {formData.governmentIdDocument && <p className="mt-1 text-[10px] font-semibold text-emerald-700">Government ID PDF selected</p>}
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-bold text-slate-700 mb-1">{formData.skill} Certificate / Skill ID Number *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.skillCertificateNumber}
+                  onChange={(e) => setFormData({ ...formData, skillCertificateNumber: e.target.value })}
+                  placeholder={`Enter ${formData.skill} certificate or skill ID number`}
+                  className="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 focus:ring-2 focus:ring-aqua-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{formData.skill} Certificate / Skill ID PDF * (max 100KB)</label>
+                <input
+                  type="file"
+                  required
+                  accept="application/pdf,.pdf"
+                  onChange={(e) => handlePdfUpload(e, 'skillCertificateDocument')}
+                  className="w-full rounded-xl bg-white border border-slate-200 px-2 py-2 text-[11px] text-slate-700 file:mr-2 file:rounded-lg file:border-0 file:bg-aqua-100 file:px-2 file:py-1 file:text-[11px] file:font-bold file:text-aqua-900"
+                />
+                {formData.skillCertificateDocument && <p className="mt-1 text-[10px] font-semibold text-emerald-700">Skill certificate PDF selected</p>}
+              </div>
+              <p className="sm:col-span-2 text-[10px] text-slate-500">Upload a clear PDF of your government ID and a certificate or proof for the selected skill.</p>
             </div>
 
             {/* Profile Photo Avatar Option */}
