@@ -182,6 +182,8 @@ function MainApp() {
         <WorkerDetailModal
           worker={selectedWorkerDetail}
           onClose={() => setSelectedWorkerDetail(null)}
+          onOpenChat={(conversation) => setChatBooking(conversation)}
+          onOpenLogin={() => setIsLoginOpen(true)}
           onBookNow={(w) => {
             setSelectedWorkerDetail(null);
             setBookingWorker(w);
