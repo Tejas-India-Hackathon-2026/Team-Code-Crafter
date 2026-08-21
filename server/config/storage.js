@@ -16,6 +16,7 @@ let db = {
   bookings: [...initialBookings],
   reviews: [...initialReviews],
   messages: [],
+  inquiries: [],
   emails: [
     {
       id: 'em_01',
@@ -56,6 +57,7 @@ function initStorage() {
         bookings: loaded.bookings || [...initialBookings],
         reviews: loaded.reviews || [...initialReviews],
         messages: loaded.messages || [],
+        inquiries: loaded.inquiries || [],
         emails: loaded.emails || []
       };
       console.log('📦 Loaded database from JSON persistence');
@@ -172,10 +174,21 @@ export const storage = {
     return null;
   },
 
+  // Customer-worker conversations before a booking exists
+  findInquiryById: (id) => db.inquiries.find((inquiry) => inquiry.id === id),
+  findInquiryBetween: (customerId, workerId) =>
+    db.inquiries.find((inquiry) => inquiry.customerId === customerId && inquiry.workerId === workerId),
+  findInquiriesByWorker: (workerId) => db.inquiries.filter((inquiry) => inquiry.workerId === workerId),
+  createInquiry: (inquiry) => {
+    db.inquiries.unshift(inquiry);
+    saveStorage();
+    return inquiry;
+  },
+
   // Booking chat messages
   getMessagesByBooking: (bookingId) =>
     db.messages
-      .filter((message) => message.bookingId === bookingId)
+      .filter((message) => message.bookingId === bookingId || message.inquiryId === bookingId)
       .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)),
   createMessage: (message) => {
     db.messages.push(message);
