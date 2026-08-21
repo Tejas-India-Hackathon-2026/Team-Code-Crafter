@@ -95,6 +95,9 @@ router.post('/register-worker', async (req, res) => {
       description,
       avatar,
       idProofNumber,
+      skillCertificateNumber,
+      governmentIdDocument,
+      skillCertificateDocument,
       documentUrl,
     } = req.body;
 
@@ -108,6 +111,30 @@ router.post('/register-worker', async (req, res) => {
 
     if (password.length < 6) {
       return res.status(400).json({ success: false, message: 'Password must be at least 6 characters.' });
+    }
+
+    const validatePdf = (document, label) => {
+      if (typeof document !== 'string' || !document.startsWith('data:application/pdf;base64,')) {
+        return `${label} must be a PDF file.`;
+      }
+      const base64 = document.split(',')[1] || '';
+      const byteLength = Math.floor((base64.length * 3) / 4) - (base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0);
+      if (byteLength > 100 * 1024) return `${label} must be 100KB or smaller.`;
+      return null;
+    };
+
+    if (!idProofNumber?.trim()) {
+      return res.status(400).json({ success: false, message: 'Government ID number is required.' });
+    }
+
+    if (!skillCertificateNumber?.trim()) {
+      return res.status(400).json({ success: false, message: 'Skill certificate or skill ID number is required.' });
+    }
+
+    const governmentIdError = validatePdf(governmentIdDocument, 'Government ID document');
+    const skillCertificateError = validatePdf(skillCertificateDocument, 'Skill certificate');
+    if (governmentIdError || skillCertificateError) {
+      return res.status(400).json({ success: false, message: governmentIdError || skillCertificateError });
     }
 
     const workerLat = Number(lat);
@@ -147,6 +174,9 @@ router.post('/register-worker', async (req, res) => {
       reviewCount: 0,
       completedJobs: 0,
       idProofNumber: idProofNumber || 'ID-VERIFY-' + Math.floor(10000 + Math.random() * 90000),
+      skillCertificateNumber: skillCertificateNumber.trim(),
+      governmentIdDocument,
+      skillCertificateDocument,
       documentUrl:
         documentUrl ||
         'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&auto=format&fit=crop&q=80',
@@ -181,7 +211,13 @@ router.post('/register-worker', async (req, res) => {
     }
 
     const token = generateToken(newWorker);
-    const { password: _, ...workerSafe } = newWorker;
+    const {
+      password: _,
+      skillCertificateNumber: _skillCertificateNumber,
+      governmentIdDocument: __,
+      skillCertificateDocument: ___,
+      ...workerSafe
+    } = newWorker;
 
     res.status(201).json({
       success: true,
@@ -230,7 +266,13 @@ router.post('/login', async (req, res) => {
       const match = await bcrypt.compare(password, worker.password);
       if (match) {
         const token = generateToken(worker);
-        const { password: _, ...safeWorker } = worker;
+        const {
+          password: _,
+          skillCertificateNumber: _skillCertificateNumber,
+          governmentIdDocument: __,
+          skillCertificateDocument: ___,
+          ...safeWorker
+        } = worker;
         return res.json({
           success: true,
           message:
@@ -405,7 +447,13 @@ router.get('/me', authenticateToken, (req, res) => {
     return res.status(404).json({ success: false, message: 'User profile not found.' });
   }
 
-  const { password: _, ...userSafe } = user;
+  const {
+    password: _,
+    skillCertificateNumber: _skillCertificateNumber,
+    governmentIdDocument: __,
+    skillCertificateDocument: ___,
+    ...userSafe
+  } = user;
   res.json({ success: true, user: userSafe });
 });
 
