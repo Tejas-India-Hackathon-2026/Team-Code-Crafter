@@ -60,6 +60,10 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('join_inquiry_room', (inquiryId) => {
+    if (inquiryId) socket.join(`inquiry_${inquiryId}`);
+  });
+
   socket.on('disconnect', () => {
     console.log(`🔌 Client disconnected: ${socket.id}`);
   });
