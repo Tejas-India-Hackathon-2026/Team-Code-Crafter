@@ -61,6 +61,20 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const adminLogin = async (password) => {
+    const res = await fetch('/api/auth/admin-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    });
+    const data = await res.json();
+    if (!data.success) {
+      throw new Error(data.message || 'Admin login failed');
+    }
+    saveSession(data.token, data.user);
+    return data;
+  };
+
   const registerCustomer = async (formData) => {
     try {
       const res = await fetch('/api/auth/register-customer', {
@@ -161,6 +175,7 @@ export function AuthProvider({ children }) {
         isAuthenticated: !!user,
         isPendingWorker: user?.role === 'worker' && user?.status === 'pending_verification',
         login,
+        adminLogin,
         registerCustomer,
         registerWorker,
         forgotPassword,
