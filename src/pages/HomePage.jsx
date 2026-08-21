@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Search,
-  MapPin,
   SlidersHorizontal,
   Map,
   Grid,
@@ -12,7 +11,6 @@ import {
   Users,
   CheckCircle2,
   Clock,
-  Compass,
   ArrowRight,
   TrendingUp,
   Filter
@@ -29,7 +27,7 @@ export default function HomePage({
   searchQuery,
   setSearchQuery,
 }) {
-  const { currentLocation, coords, pinCode, detectGPSLocation, isDetectingGPS, maxDistance, setMaxDistance } = useLocation();
+  const { currentLocation, coords, maxDistance, setMaxDistance } = useLocation();
 
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -111,21 +109,6 @@ export default function HomePage({
           <div className="mt-10 max-w-3xl mx-auto bg-white p-3 rounded-3xl border border-slate-200 shadow-aqua-md">
             <div className="flex flex-col md:flex-row items-center gap-2">
               
-              {/* Location input / GPS Button */}
-              <div className="flex-1 w-full flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
-                <MapPin className="h-4 w-4 text-aqua-600 flex-shrink-0" />
-                <span className="font-bold text-slate-800 truncate">{currentLocation}</span>
-                <button
-                  type="button"
-                  onClick={detectGPSLocation}
-                  disabled={isDetectingGPS}
-                  className="ml-auto text-[11px] font-bold text-aqua-700 hover:text-aqua-800 flex items-center gap-1 flex-shrink-0"
-                >
-                  <Compass className={`h-3 w-3 ${isDetectingGPS ? 'animate-spin' : ''}`} />
-                  {isDetectingGPS ? 'Locating...' : 'GPS'}
-                </button>
-              </div>
-
               {/* Keyword / Skill Search */}
               <div className="flex-1 w-full flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
                 <Search className="h-4 w-4 text-slate-400 flex-shrink-0" />

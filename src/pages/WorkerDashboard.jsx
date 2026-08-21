@@ -90,6 +90,27 @@ export default function WorkerDashboard({ onNavigate, onOpenChat }) {
     }
   };
 
+  const handleShareLocation = (bookingId) => {
+    if (!navigator.geolocation) {
+      addToast({ title: 'GPS unavailable', message: 'This browser does not support location sharing.', type: 'danger' });
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      try {
+        const res = await fetch(`/api/bookings/${bookingId}/location`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ lat: position.coords.latitude, lng: position.coords.longitude }),
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'Could not share location.');
+        addToast({ title: 'Location shared', message: 'Customer can now see your latest location.', type: 'success' });
+      } catch (err) {
+        addToast({ title: 'Location not shared', message: err.message, type: 'danger' });
+      }
+    }, () => addToast({ title: 'GPS permission needed', message: 'Allow location access to share your live position.', type: 'warning' }), { enableHighAccuracy: true, timeout: 10000 });
+  };
+
   const handleAcceptBooking = async (bookingId) => {
     try {
       const res = await fetch(`/api/bookings/${bookingId}/accept`, {
@@ -471,6 +492,13 @@ export default function WorkerDashboard({ onNavigate, onOpenChat }) {
 
                         {b.status === 'accepted' && (
                           <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleShareLocation(b.id)}
+                              className="px-4 py-2 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-bold transition flex items-center gap-1.5"
+                            >
+                              <MapPin className="h-3.5 w-3.5" />
+                              Share Location
+                            </button>
                             <button
                               onClick={() => onOpenChat(b)}
                               className="px-4 py-2 rounded-xl border border-aqua-200 bg-aqua-50 hover:bg-aqua-100 text-aqua-900 text-xs font-bold transition flex items-center gap-1.5"
