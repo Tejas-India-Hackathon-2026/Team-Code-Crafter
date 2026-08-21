@@ -231,7 +231,91 @@ export function LoginModal({ isOpen, onClose, onOpenRegisterCustomer, onOpenRegi
   );
 }
 
-/* 2. Customer Sign Up Modal */
+/* 2. Admin Login Modal */
+export function AdminLoginModal({ isOpen, onClose }) {
+  const { adminLogin } = useAuth();
+  const { addToast } = useNotification();
+
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setIsSubmitting(true);
+
+    try {
+      const data = await adminLogin(password);
+      addToast({
+        title: 'Admin access granted',
+        message: `Signed in as ${data.user.fullName}.`,
+        type: 'success',
+      });
+      setPassword('');
+      onClose();
+    } catch (err) {
+      setError(err.message || 'Admin login failed.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-fade-in">
+      <div className="relative w-full max-w-sm bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden animate-slide-up">
+        <div className="bg-gradient-to-r from-purple-800 to-purple-600 p-6 text-white flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-extrabold">Admin Login</h2>
+            <p className="text-xs font-semibold text-purple-100">Enter your admin password</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition"
+            aria-label="Close admin login"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {error && (
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 flex-shrink-0 text-rose-600" />
+              <span>{error}</span>
+            </div>
+          )}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Admin Password</label>
+            <div className="relative">
+              <input
+                type="password"
+                required
+                autoFocus
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter admin password"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+              />
+              <Lock className="absolute left-3 top-3 h-3.5 w-3.5 text-slate-400" />
+            </div>
+          </div>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full py-3 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold shadow-md disabled:opacity-50 transition"
+          >
+            {isSubmitting ? 'Signing in...' : 'Login as Admin'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+/* 3. Customer Sign Up Modal */
 export function RegisterCustomerModal({ isOpen, onClose, onOpenLogin }) {
   const { registerCustomer } = useAuth();
   const { addToast } = useNotification();
