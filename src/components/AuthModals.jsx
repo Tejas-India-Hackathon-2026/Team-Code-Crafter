@@ -327,7 +327,7 @@ export function RegisterCustomerModal({ isOpen, onClose, onOpenLogin }) {
     email: '',
     password: '',
     confirmPassword: '',
-    location: currentLocation || 'Bengaluru',
+    location: currentLocation || 'Patna, Bihar',
     lat: null,
     lng: null,
   });
