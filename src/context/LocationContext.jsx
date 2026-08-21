@@ -4,6 +4,8 @@ const LocationContext = createContext();
 
 export const POPULAR_LOCATIONS = [
   { name: 'Patna, Bihar', lat: 25.5941, lng: 85.1376, pin: '800001' },
+  { name: 'Jamui, Bihar', lat: 24.9180, lng: 86.1844, pin: '811307' },
+  { name: 'Lakhisarai, Bihar', lat: 25.1677, lng: 86.0952, pin: '811311' },
   { name: 'Indiranagar, Bengaluru', lat: 12.9784, lng: 77.6408, pin: '560038' },
   { name: 'Koramangala, Bengaluru', lat: 12.9352, lng: 77.6245, pin: '560034' },
   { name: 'HSR Layout, Bengaluru', lat: 12.9121, lng: 77.6446, pin: '560102' },
