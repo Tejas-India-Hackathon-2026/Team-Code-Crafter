@@ -139,7 +139,7 @@ export function AuthProvider({ children }) {
   // Quick Demo Login for instant testing of all roles
   const quickDemoLogin = async (role) => {
     if (role === 'admin') {
-      return await login('admin@workerconnect.com', 'admin123');
+      return await login('admin@workerconnect.com', 'skillconect12@');
     } else if (role === 'worker') {
       return await login('rahul.electrician@example.com', 'worker123');
     } else if (role === 'worker_pending') {
